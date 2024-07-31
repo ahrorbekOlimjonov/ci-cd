@@ -1,0 +1,37 @@
+name: Deploy to Lightsail
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Verify Connection Details
+        run: |
+          echo "Connecting to host: ${{ secrets.SSH_HOST }}"
+          echo "Using user: ${{ secrets.SSH_USER }}"
+
+      - name: Deploy to Lightsail
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          key_format: pem
+          port: 22
+          script: |
+            echo "Starting deployment..."
+            cd /home/ubuntu/projects/myapp_cicd_github
+            sudo docker compose down
+            docker rmi myapp_cicd_github-myapp
+            git pull origin main 
+            sudo docker compose up -d --build
+            echo "Deployment complete."
+        env:
+          LIGHTSAIL_HOST: ${{ secrets.SSH_HOST }}
+          LIGHTSAIL_USER: ${{ secrets.SSH_USER }}
+          LIGHTSAIL_SSH_KEY: ${{ secrets.SSH_KEY }}
