@@ -15,7 +15,13 @@ func main() {
 		})
 	})
 
-	log.Println("server is running in :8080 ...")
+	r.GET("/hi", func(ctx *gin.Context) {
+		ctx.IndentedJSON(200, gin.H{
+			"message": "Hi from CI/CD test project",
+		})
+	})
 
-	r.Run(":8080")
+	log.Println("server is running in :6565 ...")
+
+	r.Run(":6565")
 }
